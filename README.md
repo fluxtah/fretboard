@@ -1,7 +1,7 @@
 [![](https://jitpack.io/v/fluxtah/fretboard.svg)](https://jitpack.io/#fluxtah/fretboard)
 
 # Fretboard for Jetpack Compose
-<img align="right" src="https://github.com/fluxtah/fretboard/blob/master/gfx/screenshots/piano-roll-1.png" alt="Piano Roll"  width="300" />Piano roll is a small library written in Jetpack Compose to create chord sheets for keyboards and pianos.
+<img align="right" src="https://github.com/fluxtah/fretboard/blob/master/gfx/screenshots/fretboard-1.png" alt="Fretboard"  width="300" />Fretboard is a small library written in Jetpack Compose to create chord charts for guitars.
 ```kotlin
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -9,7 +9,15 @@ class MainActivity : AppCompatActivity() {
         setContent {
             MaterialTheme {
                 Container {
-                    // TODO example
+                    val markers = listOf(
+                        Marker.FrettedNote(1, 2),
+                        Marker.FrettedNote(2, 3),
+                        Marker.FrettedNote(3, 2),
+                        Marker.FrettedNote(4, 0),
+                        Marker.Mute(5),
+                        Marker.Mute(6)
+                    )
+                    Fretboard(0, 5, markers, scale = 2.0f)
                 }
             }
         }
