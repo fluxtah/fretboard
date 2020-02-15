@@ -1,0 +1,3 @@
+include ':fretboard'
+include ':fretboard-sample'
+rootProject.name = "Fretboard"
