@@ -5,8 +5,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.ui.core.setContent
 import androidx.ui.layout.Container
 import androidx.ui.material.MaterialTheme
-import com.citizenwarwick.fretboard.Fretboard
-import com.citizenwarwick.fretboard.Marker
+import com.citizenwarwick.fretboard.GuitarChord
+import com.citizenwarwick.fretboard.Marker.FrettedNote
+import com.citizenwarwick.fretboard.Marker.Mute
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,15 +15,15 @@ class MainActivity : AppCompatActivity() {
         setContent {
             MaterialTheme {
                 Container {
-                    val markers = listOf(
-                        Marker.FrettedNote(1, 2),
-                        Marker.FrettedNote(2, 3),
-                        Marker.FrettedNote(3, 2),
-                        Marker.FrettedNote(4, 0),
-                        Marker.Mute(5),
-                        Marker.Mute(6)
+                    val fingers = listOf(
+                        FrettedNote(1, 2),
+                        FrettedNote(2, 3),
+                        FrettedNote(3, 2),
+                        FrettedNote(4, 0),
+                        Mute(5),
+                        Mute(6)
                     )
-                    Fretboard(0, 5, markers, scale = 2.0f)
+                    GuitarChord(fingers)
                 }
             }
         }

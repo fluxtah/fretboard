@@ -9,15 +9,15 @@ class MainActivity : AppCompatActivity() {
         setContent {
             MaterialTheme {
                 Container {
-                    val markers = listOf(
-                        Marker.FrettedNote(1, 2),
-                        Marker.FrettedNote(2, 3),
-                        Marker.FrettedNote(3, 2),
-                        Marker.FrettedNote(4, 0),
-                        Marker.Mute(5),
-                        Marker.Mute(6)
+                    val fingers = listOf(
+                        FrettedNote(1, 2),
+                        FrettedNote(2, 3),
+                        FrettedNote(3, 2),
+                        FrettedNote(4, 0),
+                        Mute(5),
+                        Mute(6)
                     )
-                    Fretboard(0, 5, markers, scale = 2.0f)
+                    GuitarChord(fingers)
                 }
             }
         }

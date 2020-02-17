@@ -48,7 +48,7 @@ import com.citizenwarwick.music.PitchClass
 @Composable
 @Preview
 fun FretboardPreview() {
-    val markers = listOf(
+    val fingers = listOf(
         FrettedNote(1, 2),
         FrettedNote(2, 3),
         FrettedNote(3, 2),
@@ -56,7 +56,18 @@ fun FretboardPreview() {
         Mute(5),
         Mute(6)
     )
-    Fretboard(0, 5, markers, scale = 2.0f)
+    val data = "2|2|2|0|x|x"
+    GuitarChord(fingers)
+}
+
+@Composable
+fun GuitarChord(fingers: List<Marker>) {
+    val max = fingers.maxBy { if (it is FrettedNote) it.fretNumber else 0 }
+        .let { if (it is FrettedNote) it.fretNumber else 0 } + 2 // EXTRA 2 FRETS FOR VISUAL PURPOSES
+    val min = fingers.minBy { if (it is FrettedNote) it.fretNumber else 0 }
+        .let { if (it is FrettedNote) it.fretNumber else 0 }
+
+    Fretboard(min, max, fingers, scale = 2.0f)
 }
 
 @Composable
