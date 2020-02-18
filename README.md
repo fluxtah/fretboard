@@ -9,15 +9,7 @@ class MainActivity : AppCompatActivity() {
         setContent {
             MaterialTheme {
                 Container {
-                    val fingers = listOf(
-                        FrettedNote(1, 2),
-                        FrettedNote(2, 3),
-                        FrettedNote(3, 2),
-                        FrettedNote(4, 0),
-                        Mute(5),
-                        Mute(6)
-                    )
-                    GuitarChord(fingers)
+                    GuitarChord("2|3|2|0|x|x".fingering)
                 }
             }
         }
