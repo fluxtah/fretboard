@@ -48,26 +48,17 @@ import com.citizenwarwick.music.PitchClass
 @Composable
 @Preview
 fun FretboardPreview() {
-    val fingers = listOf(
-        FrettedNote(1, 2),
-        FrettedNote(2, 3),
-        FrettedNote(3, 2),
-        FrettedNote(4, 0),
-        Mute(5),
-        Mute(6)
-    )
-    val data = "2|2|2|0|x|x"
-    GuitarChord(fingers)
+    GuitarChord("2|3|2|0|x|x".fingering)
 }
 
 @Composable
 fun GuitarChord(fingers: List<Marker>) {
     val max = fingers.maxBy { if (it is FrettedNote) it.fretNumber else 0 }
-        .let { if (it is FrettedNote) it.fretNumber else 0 } + 2 // EXTRA 2 FRETS FOR VISUAL PURPOSES
+        .let { if (it is FrettedNote) it.fretNumber else 0 }
     val min = fingers.minBy { if (it is FrettedNote) it.fretNumber else 0 }
         .let { if (it is FrettedNote) it.fretNumber else 0 }
-
-    Fretboard(min, max, fingers, scale = 2.0f)
+    val minVisibleFrets = 6
+    Fretboard(min, max + 2, fingers, scale = 2.0f)
 }
 
 @Composable
@@ -114,15 +105,16 @@ fun Fretboard(
                         )
                     }
                 }
-                FretMarkerLayer(fretRange, from, toFret, markers, scale)
+                FretMarkerLayer(from, toFret, markers, scale)
             }
         }
-        FretNumberGutter(fretRange, from, toFret, scale)
+        FretNumberGutter(from, toFret, scale)
     }
 }
 
 @Composable
-private fun FretNumberGutter(fretRange: Int, from: Int, toFret: Int, scale: Float = 1.5f) {
+private fun FretNumberGutter(fromFret: Int, toFret: Int, scale: Float = 1.5f) {
+    val fretRange = toFret - fromFret
     Container(
         modifier = background(Color.White) + LayoutSize(
             width = (BASE_FRET_WIDTH * fretRange * scale).dp,
@@ -130,12 +122,12 @@ private fun FretNumberGutter(fretRange: Int, from: Int, toFret: Int, scale: Floa
         )
     ) {
         Row(modifier = LayoutWidth.Fill) {
-            for (n in from until toFret) {
+            for (n in fromFret until toFret) {
                 Container(
                     modifier = LayoutFlexible(1f) + LayoutPadding(right = (BASE_FRET_NUMBER_GUTTER_PADDING_RIGHT * scale).dp),
                     alignment = Alignment.Center
                 ) {
-                    if (n <= 0 || n != from) {
+                    if (n <= 0 || n != fromFret) {
                         Text(text = "$n")
                     }
                 }
@@ -146,15 +138,14 @@ private fun FretNumberGutter(fretRange: Int, from: Int, toFret: Int, scale: Floa
 
 @Composable
 private fun FretMarkerLayer(
-    fretRange: Int,
     fromFret: Int,
     toFret: Int,
     markers: List<Marker>,
     scale: Float = 1.5f
 ) {
-    Table(
-        columns = fretRange,
-        alignment = { Alignment.CenterLeft }) {
+    val fretRange = toFret - fromFret
+
+    Table(columns = fretRange) {
         repeat(6) { index ->
             val stringNumber = 6 - index
             tableRow {
@@ -302,6 +293,17 @@ fun List<Marker>.findMutedStringOrNull(stringNumber: Int) =
 fun List<Marker>.findFrettedNoteOrNull(stringNumber: Int, fretNumber: Int): FrettedNote? = firstOrNull {
     it is FrettedNote && it.stringNumber == stringNumber && it.fretNumber == fretNumber
 } as? FrettedNote
+
+val String.fingering: List<Marker>
+    get() {
+        return split("|").mapIndexed { index, value ->
+            when {
+                value == "x" -> Mute(index + 1)
+                value.toIntOrNull() != null -> FrettedNote(index + 1, value.toInt())
+                else -> throw IllegalArgumentException("Invalid fingering format $value")
+            }
+        }
+    }
 
 private const val BASE_FRETMARKER_CONTAINER_HEIGHT = 16
 private const val BASE_FRETBOARD_HEIGHT = 6 * BASE_FRETMARKER_CONTAINER_HEIGHT
