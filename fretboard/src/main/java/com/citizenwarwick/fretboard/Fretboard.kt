@@ -21,6 +21,7 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.Text
 import androidx.ui.foundation.Border
+import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.background
 import androidx.ui.foundation.shape.DrawShape
@@ -48,25 +49,31 @@ import com.citizenwarwick.music.PitchClass
 @Composable
 @Preview
 fun FretboardPreview() {
-    GuitarChord("2|3|2|0|x|x".fingering)
+    Column {
+        GuitarChord("2|3|2|0|x|x".fingering)
+    }
 }
 
 @Composable
-fun GuitarChord(fingers: List<Marker>) {
+fun GuitarChord(
+    fingers: List<Marker>,
+    scale: Float = 1.5f,
+    onFretboardPressed: (string: Int, fret: Int) -> Unit = { _, _ -> }
+) {
     val max = fingers.maxBy { if (it is FrettedNote) it.fretNumber else 0 }
         .let { if (it is FrettedNote) it.fretNumber else 0 }
     val min = fingers.minBy { if (it is FrettedNote) it.fretNumber else 0 }
         .let { if (it is FrettedNote) it.fretNumber else 0 }
-    val minVisibleFrets = 6
-    Fretboard(min, max + 2, fingers, scale = 2.0f)
+    Fretboard(min, max + 2, fingers, scale, onFretboardPressed)
 }
 
 @Composable
 fun Fretboard(
     @IntRange(from = 0, to = 24) fromFret: Int = 0,
-    @IntRange(from = 0, to = 24) toFret: Int = 12,
+    @IntRange(from = 0, to = 25) toFret: Int = 12,
     markers: List<Marker> = listOf(),
-    scale: Float = 1.5f
+    scale: Float = 1.5f,
+    onFretboardPressed: (string: Int, fret: Int) -> Unit = { _, _ -> }
 ) {
     check(fromFret >= 0 && toFret > fromFret) {
         "Invalid fret range"
@@ -105,7 +112,7 @@ fun Fretboard(
                         )
                     }
                 }
-                FretMarkerLayer(from, toFret, markers, scale)
+                FretMarkerLayer(from, toFret, markers, scale, onFretboardPressed)
             }
         }
         FretNumberGutter(from, toFret, scale)
@@ -141,7 +148,8 @@ private fun FretMarkerLayer(
     fromFret: Int,
     toFret: Int,
     markers: List<Marker>,
-    scale: Float = 1.5f
+    scale: Float = 1.5f,
+    onFretboardPressed: (string: Int, fret: Int) -> Unit = { _, _ -> }
 ) {
     val fretRange = toFret - fromFret
 
@@ -150,18 +158,19 @@ private fun FretMarkerLayer(
             val stringNumber = 6 - index
             tableRow {
                 for (fretNumber in fromFret until toFret) {
-                    // the gutter
-                    if (fretNumber == fromFret) {
-                        val openNote = markers.findOpenStringOrNull(stringNumber)
-                        val mute = markers.findMutedStringOrNull(stringNumber)
-                        when {
-                            openNote != null -> FretMarker(openNote, scale)
-                            mute != null -> MutedMarker(mute, scale)
-                            else -> FretMarker(null, scale)
+                    Clickable(onClick = { onFretboardPressed(stringNumber, fretNumber) }) {
+                        if (fretNumber == fromFret) {
+                            val openNote = markers.findOpenStringOrNull(stringNumber)
+                            val mute = markers.findMutedStringOrNull(stringNumber)
+                            when {
+                                openNote != null -> FretMarker(openNote, scale)
+                                mute != null -> MutedMarker(mute, scale)
+                                else -> FretMarker(null, scale)
+                            }
+                        } else {
+                            val marker = markers.findFrettedNoteOrNull(stringNumber, fretNumber)
+                            FretMarker(marker, scale)
                         }
-                    } else {
-                        val marker = markers.findFrettedNoteOrNull(stringNumber, fretNumber)
-                        FretMarker(marker, scale)
                     }
                 }
             }
@@ -293,6 +302,44 @@ fun List<Marker>.findMutedStringOrNull(stringNumber: Int) =
 fun List<Marker>.findFrettedNoteOrNull(stringNumber: Int, fretNumber: Int): FrettedNote? = firstOrNull {
     it is FrettedNote && it.stringNumber == stringNumber && it.fretNumber == fretNumber
 } as? FrettedNote
+
+/**
+ * Replaces a marker in the list of markers if it falls on the same
+ * string as the given marker
+ */
+fun MutableList<Marker>.replaceOnSameString(note: FrettedNote) {
+    val index = indexOfFirst {
+        when (it) {
+            is FrettedNote -> it.stringNumber == note.stringNumber
+            is Mute -> it.stringNumber == note.stringNumber
+        }
+    }
+
+    if (index > -1) {
+        this[index] = note
+    } else {
+        add(note)
+    }
+}
+
+/**
+ * Replaces a marker in the list of markers if it falls on the same
+ * string as the given marker
+ */
+fun MutableList<Marker>.replaceOnSameString(mute: Mute) {
+    val index = indexOfFirst {
+        when (it) {
+            is FrettedNote -> it.stringNumber == mute.stringNumber
+            is Mute -> it.stringNumber == mute.stringNumber
+        }
+    }
+
+    if (index > -1) {
+        this[index] = mute
+    } else {
+        add(mute)
+    }
+}
 
 val String.fingering: List<Marker>
     get() {
