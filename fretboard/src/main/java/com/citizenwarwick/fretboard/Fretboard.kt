@@ -21,9 +21,10 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.Text
 import androidx.ui.foundation.Border
+import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ColoredRect
-import androidx.ui.foundation.background
+import androidx.ui.foundation.DrawBorder
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
@@ -85,15 +86,13 @@ fun Fretboard(
     val fretRange = toFret - from
 
     Column {
-        Container(
-            modifier = background(Color.White) + Border(
-                shape = RoundedCornerShape(0.dp),
-                width = 1.dp,
-                color = Color.Black
-            ) + LayoutSize(
+        Box(
+            modifier = LayoutSize(
                 width = (BASE_FRET_WIDTH * scale * fretRange).dp,
                 height = (BASE_FRETBOARD_HEIGHT * scale).dp
-            )
+            ),
+            backgroundColor = Color.White,
+            border = Border(size = 1.dp, color = Color.Black)
         ) {
             Stack {
                 Row(modifier = LayoutWidth.Fill) {
@@ -124,8 +123,9 @@ fun Fretboard(
 @Composable
 private fun FretNumberGutter(fromFret: Int, toFret: Int, scale: Float = 1.5f) {
     val fretRange = toFret - fromFret
-    Container(
-        modifier = background(Color.White) + LayoutSize(
+    Box(
+        backgroundColor = Color.White,
+        modifier = LayoutSize(
             width = (BASE_FRET_WIDTH * fretRange * scale).dp,
             height = (BASE_FRET_BOARD_GUTTER_HEIGHT * scale).dp
         )
@@ -184,10 +184,10 @@ private fun FretMarkerLayer(
 private fun GuitarString(modifier: Modifier, thickness: Dp = 3.dp) {
     Container(modifier = modifier, alignment = Alignment.CenterRight) {
         ColoredRect(
-            modifier = modifier + Border(
-                RoundedCornerShape(1.dp),
+            modifier = modifier + DrawBorder(
                 1.dp,
-                Color.Black
+                Color.Black,
+                RoundedCornerShape(1.dp)
             ) + LayoutHeight(thickness), brush = SolidColor(Color.LightGray)
         )
     }
@@ -197,10 +197,10 @@ private fun GuitarString(modifier: Modifier, thickness: Dp = 3.dp) {
 private fun Fretwire(modifier: Modifier, scale: Float = 1.5f) {
     Container(modifier = modifier, alignment = Alignment.CenterRight) {
         ColoredRect(
-            modifier = Border(
-                RoundedCornerShape(1.dp),
+            modifier = DrawBorder(
                 1.dp,
-                Color.Black
+                Color.Black,
+                RoundedCornerShape(1.dp)
             ) + LayoutSize(width = (BASE_FRETWIRE_WIDTH * scale).dp, height = (BASE_FRETBOARD_HEIGHT * scale).dp),
             brush = SolidColor(Color.Gray)
         )
