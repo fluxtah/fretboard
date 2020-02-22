@@ -50,22 +50,23 @@ import com.citizenwarwick.music.PitchClass
 @Preview
 fun FretboardPreview() {
     Column {
-        GuitarChord("2|3|2|0|x|x".fingering)
-        //GuitarChord("102 203 302 400 5x 6x".fretboardMarkers)
+        Column {
+            GuitarChord("2|3|2|0|x|x".fingering, 0, 5)
+            GuitarChord("8|9|8|0|x|x".fingering, 7, 11)
+            GuitarChord("4|4|4|4|4|4".fingering, 2, 6)
+        }
     }
 }
 
 @Composable
 fun GuitarChord(
     fretboardMarkers: List<FretboardMarker>,
+    @IntRange(from = 0, to = 24) fromFret: Int = 0,
+    @IntRange(from = 0, to = 25) toFret: Int = 12,
     scale: Float = 1.5f,
     onFretboardPressed: (string: Int, fret: Int) -> Unit = { _, _ -> }
 ) {
-    val max = fretboardMarkers.maxBy { if (it is FrettedNote) it.fretNumber else 0 }
-        .let { if (it is FrettedNote) it.fretNumber else 0 }
-    val min = fretboardMarkers.minBy { if (it is FrettedNote) it.fretNumber else 0 }
-        .let { if (it is FrettedNote) it.fretNumber else 0 }
-    Fretboard(min, max + 2, fretboardMarkers, scale, onFretboardPressed)
+    Fretboard(fromFret, toFret, fretboardMarkers, scale, onFretboardPressed)
 }
 
 @Composable
@@ -76,7 +77,7 @@ fun Fretboard(
     scale: Float = 1.5f,
     onFretboardPressed: (string: Int, fret: Int) -> Unit = { _, _ -> }
 ) {
-    check(fromFret >= 0 && toFret > fromFret) {
+    check(fromFret in 0 until toFret) {
         "Invalid fret range"
     }
 
@@ -387,6 +388,23 @@ val List<FretboardMarker>.encodeFingering: String
             }
         }
     }
+
+public inline fun <T, R : Comparable<R>> Iterable<T>.minBy(lower: R, selector: (T) -> R): T? {
+    val iterator = iterator()
+    if (!iterator.hasNext()) return null
+    var minElem = iterator.next()
+    if (!iterator.hasNext()) return minElem
+    var minValue = selector(minElem)
+    do {
+        val e = iterator.next()
+        val v = selector(e)
+        if (minValue > v && v > lower) {
+            minElem = e
+            minValue = v
+        }
+    } while (iterator.hasNext())
+    return minElem
+}
 
 private const val BASE_FRETMARKER_CONTAINER_HEIGHT = 16
 private const val BASE_FRETBOARD_HEIGHT = 6 * BASE_FRETMARKER_CONTAINER_HEIGHT
