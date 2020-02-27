@@ -362,13 +362,16 @@ fun MutableList<FretboardMarker>.replaceOnSameString(mutedString: MutedString) {
  */
 val String.fingering: List<FretboardMarker>
     get() {
-        return split("|").mapIndexed { index, value ->
+        val markers: List<FretboardMarker?> = split("|").mapIndexed { index, value ->
             when {
                 value == "x" -> MutedString(index + 1)
                 value.toIntOrNull() != null -> FrettedNote(index + 1, value.toInt())
+                value == "" -> null
                 else -> throw IllegalArgumentException("Invalid fingering format $value")
             }
         }
+
+        return markers.filterNotNull()
     }
 
 /**
@@ -389,7 +392,7 @@ val List<FretboardMarker>.encodeFingering: String
         }
     }
 
-public inline fun <T, R : Comparable<R>> Iterable<T>.minBy(lower: R, selector: (T) -> R): T? {
+inline fun <T, R : Comparable<R>> Iterable<T>.minBy(lower: R, selector: (T) -> R): T? {
     val iterator = iterator()
     if (!iterator.hasNext()) return null
     var minElem = iterator.next()
@@ -405,6 +408,30 @@ public inline fun <T, R : Comparable<R>> Iterable<T>.minBy(lower: R, selector: (
     } while (iterator.hasNext())
     return minElem
 }
+
+fun List<FretboardMarker>.encodeFingering(numStrings: Int): String {
+    val list = mutableListOf<FretboardMarker?>()
+    (0 until numStrings).forEach { stringIndex ->
+        val marker = firstOrNull { it.extractStringNumber == stringIndex + 1 }
+        list.add(marker)
+    }
+    return list.joinToString(separator = "|") {
+        when (it) {
+            is FrettedNote -> it.fretNumber.toString()
+            is MutedString -> "x"
+            else -> ""
+        }
+    }
+}
+
+val FretboardMarker.extractStringNumber: Int
+    get() {
+        return when (this) {
+            is FrettedNote -> stringNumber
+            is MutedString -> stringNumber
+        }
+    }
+
 
 private const val BASE_FRETMARKER_CONTAINER_HEIGHT = 16
 private const val BASE_FRETBOARD_HEIGHT = 6 * BASE_FRETMARKER_CONTAINER_HEIGHT

@@ -34,7 +34,7 @@ allprojects {
 
 ```groovy
 dependencies {
-  implementation 'com.github.fluxtah:fretboard:0.1.5'
+  implementation 'com.github.fluxtah:fretboard:0.1.51'
 }
 ```
 

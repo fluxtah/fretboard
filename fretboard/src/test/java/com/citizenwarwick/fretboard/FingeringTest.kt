@@ -63,12 +63,20 @@ class FingeringTest {
         assertEquals("2|3|2|0|x|x|12", fingering)
     }
 
-    fun assertFrettedNote(expectedString: Int, expectedFret: Int, fretboardMarker: FretboardMarker) {
+    @Test
+    fun encodeFingeringWithEmpties() {
+        // This will only be equivalent if we force the number of strings
+        val fingering = "||2|x||".fingering.encodeFingering(6)
+
+        assertEquals("||2|x||", fingering)
+    }
+
+    private fun assertFrettedNote(expectedString: Int, expectedFret: Int, fretboardMarker: FretboardMarker) {
         assertEquals(expectedString, (fretboardMarker as FretboardMarker.FrettedNote).stringNumber)
         assertEquals(expectedFret, fretboardMarker.fretNumber)
     }
 
-    fun assertMutedString(expectedString: Int, fretboardMarker: FretboardMarker) {
+    private fun assertMutedString(expectedString: Int, fretboardMarker: FretboardMarker) {
         assertEquals(expectedString, (fretboardMarker as FretboardMarker.MutedString).stringNumber)
     }
 }
