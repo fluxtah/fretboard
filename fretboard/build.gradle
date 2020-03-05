@@ -4,7 +4,7 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.github.dcendents.android-maven'
 
 group = 'com.github.fluxtah'
-version = "0.1.51"
+version = "0.1.60"
 
 android {
     compileSdkVersion 29
@@ -39,12 +39,16 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion "$compose_version"
     }
+    composeOptions {
+        kotlinCompilerVersion "$kotlin_compiler_version_compose"
+        kotlinCompilerExtensionVersion "$compose_version"
+    }
 }
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.1.0'
+    implementation 'androidx.core:core-ktx:1.2.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
 
     implementation "androidx.compose:compose-compiler:$compose_version"

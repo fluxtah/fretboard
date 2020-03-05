@@ -9,7 +9,10 @@ class MainActivity : AppCompatActivity() {
         setContent {
             MaterialTheme {
                 Container {
-                    GuitarChord("2|3|2|0|x|x".fingering)
+                    GuitarChord(
+                        fingering = "2|3|2|0|x|x",
+                        fromFret = 0,
+                        toFret = 5)
                 }
             }
         }
@@ -34,7 +37,7 @@ allprojects {
 
 ```groovy
 dependencies {
-  implementation 'com.github.fluxtah:fretboard:0.1.51'
+  implementation 'com.github.fluxtah:fretboard:0.1.60'
 }
 ```
 

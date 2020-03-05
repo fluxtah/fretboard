@@ -25,7 +25,6 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.DrawBorder
-import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.SolidColor
@@ -52,11 +51,22 @@ import com.citizenwarwick.music.PitchClass
 fun FretboardPreview() {
     Column {
         Column {
-            GuitarChord("2|3|2|0|x|x".fingering, 0, 5)
-            GuitarChord("8|9|8|0|x|x".fingering, 7, 11)
-            GuitarChord("4|4|4|4|4|4".fingering, 2, 6)
+            GuitarChord("2|3|2|0|x|x", 0, 5)
+            GuitarChord("8|9|8|0|x|x", 7, 11)
+            GuitarChord("4|4|4|4|4|4", 2, 6)
         }
     }
+}
+
+@Composable
+fun GuitarChord(
+    fingering: String,
+    @IntRange(from = 0, to = 24) fromFret: Int = 0,
+    @IntRange(from = 0, to = 25) toFret: Int = 12,
+    scale: Float = 1.5f,
+    onFretboardPressed: (string: Int, fret: Int) -> Unit = { _, _ -> }
+) {
+    GuitarChord(fingering.fingering, fromFret, toFret)
 }
 
 @Composable
@@ -107,7 +117,7 @@ fun Fretboard(
                 Column(modifier = LayoutWidth.Fill) {
                     repeat(6) { index ->
                         GuitarString(
-                            modifier = LayoutFlexible(1f) + LayoutPadding(left = (BASE_STRING_LEFT_PADDING * scale).dp),
+                            modifier = LayoutFlexible(1f) + LayoutPadding(start = (BASE_STRING_LEFT_PADDING * scale).dp),
                             thickness = ((((BASE_GUITAR_STRING_THICKNESS - index) * scale).toInt().let { if (it < 3) 3 else it }).dp
                                 )
                         )
@@ -133,7 +143,7 @@ private fun FretNumberGutter(fromFret: Int, toFret: Int, scale: Float = 1.5f) {
         Row(modifier = LayoutWidth.Fill) {
             for (n in fromFret until toFret) {
                 Container(
-                    modifier = LayoutFlexible(1f) + LayoutPadding(right = (BASE_FRET_NUMBER_GUTTER_PADDING_RIGHT * scale).dp),
+                    modifier = LayoutFlexible(1f) + LayoutPadding(start = (BASE_FRET_NUMBER_GUTTER_PADDING_RIGHT * scale).dp),
                     alignment = Alignment.Center
                 ) {
                     if (n <= 0 || n != fromFret) {
@@ -182,7 +192,7 @@ private fun FretMarkerLayer(
 
 @Composable
 private fun GuitarString(modifier: Modifier, thickness: Dp = 3.dp) {
-    Container(modifier = modifier, alignment = Alignment.CenterRight) {
+    Container(modifier = modifier, alignment = Alignment.CenterStart) {
         ColoredRect(
             modifier = modifier + DrawBorder(
                 1.dp,
@@ -195,7 +205,7 @@ private fun GuitarString(modifier: Modifier, thickness: Dp = 3.dp) {
 
 @Composable
 private fun Fretwire(modifier: Modifier, scale: Float = 1.5f) {
-    Container(modifier = modifier, alignment = Alignment.CenterRight) {
+    Container(modifier = modifier, alignment = Alignment.CenterEnd) {
         ColoredRect(
             modifier = DrawBorder(
                 1.dp,
@@ -231,7 +241,7 @@ private fun MutedMarker(marker: MutedString, scale: Float = 1.5f) {
             width = (BASE_FRET_WIDTH * scale).dp,
             height = (BASE_FRETMARKER_CONTAINER_HEIGHT * scale).dp
         ) + LayoutPadding(
-            right = (BASE_MUTED_MARKER_RIGHT_PADDING * scale).dp
+            end = (BASE_MUTED_MARKER_RIGHT_PADDING * scale).dp
         ),
         alignment = Alignment.Center
     ) {
@@ -247,15 +257,13 @@ private fun FretMarker(marker: FrettedNote?, scale: Float = 1.5f) {
             height = (BASE_FRETMARKER_CONTAINER_HEIGHT * scale).dp
         )
     ) {
-        Container(
-            modifier = LayoutSize(
-                width = (BASE_FRETMARKER_SIZE * scale).dp,
-                height = (BASE_FRETMARKER_SIZE * scale).dp
-            ) + LayoutGravity.Center
-        ) {
-            if (marker != null) {
-                DrawShape(shape = RoundedCornerShape(45.dp), brush = SolidColor(Color.Black))
-            }
+        if (marker != null) {
+            Box(
+                modifier = LayoutSize(
+                    width = (BASE_FRETMARKER_SIZE * scale).dp,
+                    height = (BASE_FRETMARKER_SIZE * scale).dp
+                ) + LayoutGravity.Center, shape = RoundedCornerShape(45.dp), backgroundColor = Color.Black
+            )
         }
         marker?.pitch?.let {
             Text(
